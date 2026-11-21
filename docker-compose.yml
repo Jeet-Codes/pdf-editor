@@ -1,0 +1,12 @@
+services:
+  pdf-editor:
+    build: .
+    image: pdf-editor:latest
+    ports:
+      - "127.0.0.1:8765:8765"   # only this computer can reach it
+    volumes:
+      - pdf-editor-data:/data    # Saved PDFs survive restarts and updates
+    restart: unless-stopped
+
+volumes:
+  pdf-editor-data:

@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF Editor</title>
+<script>try { if (localStorage.getItem("pdfeditor-theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch {}</script>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<!-- Icons: Lucide (ISC licence), kept in the page so the app needs no internet. -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/></symbol>
+  <symbol id="i-select" viewBox="0 0 24 24"><path d="M5 3a2 2 0 0 0-2 2"/><path d="M19 3a2 2 0 0 1 2 2"/><path d="M21 19a2 2 0 0 1-2 2"/><path d="M5 21a2 2 0 0 1-2-2"/><path d="M9 3h1"/><path d="M9 21h1"/><path d="M14 3h1"/><path d="M14 21h1"/><path d="M3 9v1"/><path d="M21 9v1"/><path d="M3 14v1"/><path d="M21 14v1"/></symbol>
+  <symbol id="i-eraser" viewBox="0 0 24 24"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></symbol>
+  <symbol id="i-bold" viewBox="0 0 24 24"><path d="M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"/></symbol>
+  <symbol id="i-italic" viewBox="0 0 24 24"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></symbol>
+  <symbol id="i-al" viewBox="0 0 24 24"><path d="M21 6H3"/><path d="M15 12H3"/><path d="M17 18H3"/></symbol>
+  <symbol id="i-ac" viewBox="0 0 24 24"><path d="M21 6H3"/><path d="M17 12H7"/><path d="M19 18H5"/></symbol>
+  <symbol id="i-ar" viewBox="0 0 24 24"><path d="M21 6H3"/><path d="M21 12H9"/><path d="M21 18H7"/></symbol>
+  <symbol id="i-aj" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-pleft" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></symbol>
+  <symbol id="i-pright" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8h8"/><path d="M7 12h10"/><path d="M7 16h6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-unlock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></symbol>
+  <symbol id="i-sign" viewBox="0 0 24 24"><path d="m21 17-2.156-1.868A.5.5 0 0 0 18 15.5v.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1c0-2.545-3.991-3.97-8.5-4a1 1 0 0 0 0 5c4.153 0 4.745-11.295 5.708-13.5a2.5 2.5 0 1 1 3.31 3.284"/><path d="M3 21h18"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-fileplus" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 18v-6"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol>
+</svg>
+
+<nav id="rail" aria-label="Main">
+  <div class="logo" aria-hidden="true"><svg class="ic"><use href="#i-file"/></svg></div>
+  <button id="homeBtn" class="navbtn"><svg class="ic"><use href="#i-home"/></svg><span>Home</span></button>
+  <button id="savedBtn" class="navbtn"><svg class="ic"><use href="#i-bookmark"/></svg><span>Saved PDFs</span></button>
+  <span class="grow"></span>
+  <button id="paletteBtn" class="navbtn" data-tip="Find any action" data-key="Ctrl+K" aria-label="Find any action"><svg class="ic"><use href="#i-search"/></svg><span>Find</span></button>
+  <button id="themeBtn" class="navbtn" data-tip="Light or dark" aria-label="Switch between light and dark"><svg class="ic"><use id="themeIcon" href="#i-moon"/></svg><span id="themeLabel">Dark</span></button>
+</nav>
+
+<div id="app">
+  <header id="tabbar">
+    <div class="brand">PDF Editor</div>
+    <div id="tabstrip" role="tablist" aria-label="Open PDFs"></div>
+    <button id="newTabBtn" class="newtab" data-tip="Open a PDF in a new tab" aria-label="Open a PDF in a new tab"><svg class="ic"><use href="#i-plus"/></svg></button>
+  </header>
+
+  <header id="topbar" hidden>
+    <button id="thumbsToggle" class="ghost icon" data-tip="Show or hide pages" aria-label="Show or hide pages"><svg class="ic"><use href="#i-pleft"/></svg></button>
+    <div class="tools" role="toolbar" aria-label="Tools">
+      <button data-tool="edit" class="tool active" data-tip="Click any text or image to change it" data-key="V" aria-label="Edit"><svg class="ic"><use href="#i-pencil"/></svg><span>Edit</span></button>
+      <button data-tool="text" class="tool" data-tip="Click on the page to add text" data-key="T" aria-label="Add text"><svg class="ic"><use href="#i-type"/></svg><span>Add text</span></button>
+      <button id="imageBtn" class="tool" data-tip="Add a photo" data-key="I" aria-label="Add photo"><svg class="ic"><use href="#i-image"/></svg><span>Add photo</span></button>
+      <button data-tool="select" class="tool" data-tip="Drag around anything to move or copy it, even to another page" data-key="S" aria-label="Select area"><svg class="ic"><use href="#i-select"/></svg><span>Select area</span></button>
+      <button data-tool="erase" class="tool" data-tip="Drag over anything to remove it for good" data-key="E" aria-label="Erase area"><svg class="ic"><use href="#i-eraser"/></svg><span>Erase area</span></button>
+      <span class="sep"></span>
+      <button id="findBtn" class="tool" data-tip="Find and replace text" data-key="Ctrl+F" aria-label="Find and replace"><svg class="ic"><use href="#i-search"/></svg><span>Find</span></button>
+      <button id="signBtn" class="tool" data-tip="Add a signature, initials or the date" aria-label="Sign"><svg class="ic"><use href="#i-sign"/></svg><span>Sign</span></button>
+      <button id="pagesBtn" class="tool" data-tip="Reorder, duplicate, extract, split and merge pages" aria-label="Organise pages"><svg class="ic"><use href="#i-grid"/></svg><span>Pages</span></button>
+    </div>
+    <div class="right">
+      <button id="undoBtn" class="ghost icon" data-tip="Undo" data-key="Ctrl+Z" aria-label="Undo" disabled><svg class="ic"><use href="#i-undo"/></svg></button>
+      <button id="redoBtn" class="ghost icon" data-tip="Redo" data-key="Ctrl+Y" aria-label="Redo" disabled><svg class="ic"><use href="#i-redo"/></svg></button>
+      <span class="sep"></span>
+      <button id="zoomOut" class="ghost icon" data-tip="Zoom out" aria-label="Zoom out"><svg class="ic"><use href="#i-minus"/></svg></button>
+      <button id="zoomLabel" class="ghost zoomval" data-tip="Fit width">100%</button>
+      <button id="zoomIn" class="ghost icon" data-tip="Zoom in" aria-label="Zoom in"><svg class="ic"><use href="#i-plus"/></svg></button>
+      <span class="sep"></span>
+      <button id="downloadBtn" class="ghost outline" data-tip="Download a copy to your computer" aria-label="Download"><svg class="ic"><use href="#i-download"/></svg><span>Download</span></button>
+      <button id="saveBtn" class="primary" data-tip="Keep this PDF under Saved PDFs" data-key="Ctrl+S"><svg class="ic"><use id="saveIcon" href="#i-save"/></svg><span id="saveLabel">Save</span></button>
+      <button id="panelToggle" class="ghost icon" data-tip="Show or hide details" aria-label="Show or hide details"><svg class="ic"><use href="#i-pright"/></svg></button>
+    </div>
+  </header>
+
+  <main id="workspace" hidden>
+    <nav id="thumbs" aria-label="Pages"></nav>
+    <section id="scroller"><div id="pages"></div></section>
+
+    <aside id="panel" aria-label="Details">
+      <div id="docinfo">
+        <h3>Document</h3>
+        <dl>
+          <dt>Name</dt><dd id="dName"></dd>
+          <dt>Pages</dt><dd id="dPages"></dd>
+          <dt>This page</dt><dd id="dSize"></dd>
+          <dt>Status</dt><dd id="dSaved"></dd>
+          <dt>Security</dt><dd id="dSecurity"></dd>
+        </dl>
+        <h3>Shortcuts</h3>
+        <ul class="keys">
+          <li><span>Edit</span><kbd>V</kbd></li>
+          <li><span>Add text</span><kbd>T</kbd></li>
+          <li><span>Add photo</span><kbd>I</kbd></li>
+          <li><span>Select area</span><kbd>S</kbd></li>
+          <li><span>Erase area</span><kbd>E</kbd></li>
+          <li><span>Find and replace</span><kbd>Ctrl+F</kbd></li>
+          <li><span>Undo</span><kbd>Ctrl+Z</kbd></li>
+          <li><span>Redo</span><kbd>Ctrl+Y</kbd></li>
+          <li><span>Save</span><kbd>Ctrl+S</kbd></li>
+          <li><span>Find any action</span><kbd>Ctrl+K</kbd></li>
+        </ul>
+      </div>
+
+      <div id="findpanel" class="pbar" hidden>
+        <div class="phead"><h3>Find and replace</h3><button id="findClose" class="ghost icon" aria-label="Close find and replace"><svg class="ic"><use href="#i-x"/></svg></button></div>
+        <label class="stack">Find <input id="findInput" type="search" autocomplete="off" spellcheck="false"></label>
+        <label class="stack">Replace with <input id="replaceInput" type="text" autocomplete="off" spellcheck="false"></label>
+        <label class="check"><input id="findCase" type="checkbox"> Match case</label>
+        <div class="findnav">
+          <span id="findCount" class="hint" aria-live="polite">Searches every page.</span>
+          <button id="findPrev" class="ghost icon" data-tip="Previous match" data-key="Shift+Enter" aria-label="Previous match" disabled><svg class="ic"><use href="#i-up"/></svg></button>
+          <button id="findNext" class="ghost icon" data-tip="Next match" data-key="Enter" aria-label="Next match" disabled><svg class="ic"><use href="#i-down"/></svg></button>
+        </div>
+        <div class="actions">
+          <button id="replaceAll" class="primary wide" disabled>Replace all</button>
+          <button id="replaceOne" class="ghost outline" disabled>Replace this one</button>
+        </div>
+      </div>
+
+      <div id="formatbar" class="pbar" hidden>
+        <h3>Text</h3>
+        <label class="stack">Font <select id="fFamily" aria-label="Font"></select></label>
+        <div class="pair">
+          <label class="stack">Size <input id="fSize" type="number" min="1" max="400" step="0.5" aria-label="Font size"></label>
+          <div class="stack">Colour <label class="swatch" data-tip="Text colour"><input id="fColor" type="color" aria-label="Text colour"></label></div>
+        </div>
+        <div class="stack">Style
+          <div class="btnrow">
+            <button id="fBold" class="fmt" aria-label="Bold" data-tip="Bold" data-key="Ctrl+B"><svg class="ic"><use href="#i-bold"/></svg></button>
+            <button id="fItalic" class="fmt" aria-label="Italic" data-tip="Italic" data-key="Ctrl+I"><svg class="ic"><use href="#i-italic"/></svg></button>
+          </div>
+        </div>
+        <div class="stack">Alignment
+          <div class="btnrow">
+            <button class="fmt" data-align="left" data-tip="Align left" aria-label="Align left"><svg class="ic"><use href="#i-al"/></svg></button>
+            <button class="fmt" data-align="center" data-tip="Centre" aria-label="Centre"><svg class="ic"><use href="#i-ac"/></svg></button>
+            <button class="fmt" data-align="right" data-tip="Align right" aria-label="Align right"><svg class="ic"><use href="#i-ar"/></svg></button>
+            <button class="fmt" data-align="justify" data-tip="Justify" aria-label="Justify"><svg class="ic"><use href="#i-aj"/></svg></button>
+          </div>
+        </div>
+        <p class="hint">Select words to style just those. Drag the blue bar to move.</p>
+        <div class="actions">
+          <button id="fDone" class="primary wide"><svg class="ic"><use href="#i-check"/></svg>Done</button>
+          <button id="fCancel" class="ghost outline">Cancel</button>
+          <button id="fDelete" class="ghost danger"><svg class="ic"><use href="#i-trash"/></svg>Delete text</button>
+        </div>
+      </div>
+
+      <div id="imagebar" class="pbar" hidden>
+        <h3>Photo</h3>
+        <div class="pair">
+          <label class="stack">Width (cm) <input id="iWidth" type="number" min="0.2" step="0.1" aria-label="Photo width in centimetres"></label>
+          <label class="stack">Height (cm) <input id="iHeight" type="number" min="0.2" step="0.1" aria-label="Photo height in centimetres"></label>
+        </div>
+        <label class="check"><input id="iLock" type="checkbox" checked> Keep proportions</label>
+        <div class="stack">Across the page
+          <div class="segment" role="group" aria-label="Align photo across the page">
+            <button class="seg" data-ax="left">Left</button>
+            <button class="seg" data-ax="center">Centre</button>
+            <button class="seg" data-ax="right">Right</button>
+          </div>
+        </div>
+        <div class="stack">Down the page
+          <div class="segment" role="group" aria-label="Align photo down the page">
+            <button class="seg" data-ay="top">Top</button>
+            <button class="seg" data-ay="middle">Middle</button>
+            <button class="seg" data-ay="bottom">Bottom</button>
+          </div>
+        </div>
+        <p class="hint">Drag the photo to move it, or its handles to resize.</p>
+        <div class="actions">
+          <button id="iDone" class="primary wide"><svg class="ic"><use href="#i-check"/></svg>Done</button>
+          <button id="iReplace" class="ghost outline">Replace</button>
+          <button id="iDelete" class="ghost danger"><svg class="ic"><use href="#i-trash"/></svg>Delete</button>
+        </div>
+      </div>
+
+      <div id="areabar" class="pbar" hidden>
+        <h3>Selected area</h3>
+        <label class="stack">Put on page <select id="aPage" aria-label="Page to place this area on"></select></label>
+        <div class="stack">Across the page
+          <div class="segment" role="group" aria-label="Align across the page">
+            <button class="seg" data-aax="left">Left</button>
+            <button class="seg" data-aax="center">Centre</button>
+            <button class="seg" data-aax="right">Right</button>
+          </div>
+        </div>
+        <div class="stack">Down the page
+          <div class="segment" role="group" aria-label="Align down the page">
+            <button class="seg" data-aay="top">Top</button>
+            <button class="seg" data-aay="middle">Middle</button>
+            <button class="seg" data-aay="bottom">Bottom</button>
+          </div>
+        </div>
+        <p class="hint">Drag the box to position it, even onto another page. Arrow keys nudge it.</p>
+        <div class="actions">
+          <button id="aMove" class="primary wide">Move here</button>
+          <button id="aCopy" class="ghost strong wide"><svg class="ic"><use href="#i-copy"/></svg>Copy here</button>
+          <button id="aCancel" class="ghost outline">Cancel</button>
+        </div>
+      </div>
+    </aside>
+
+    <section id="organizer" hidden aria-label="Organise pages">
+      <div class="orghead">
+        <div><h2>Organise pages</h2><span id="orgCount" class="muted"></span></div>
+        <span class="grow"></span>
+        <button id="orgAll" class="ghost">Select all</button>
+        <button id="orgAdd" class="ghost outline" data-tip="Add the pages of another PDF after the selected pages, or at the end"><svg class="ic"><use href="#i-fileplus"/></svg>Add PDF</button>
+        <button id="orgDone" class="primary"><svg class="ic"><use href="#i-check"/></svg>Done</button>
+      </div>
+      <div class="orgactions" role="toolbar" aria-label="Selected pages">
+        <span id="orgSel" class="muted">Click pages to select them.</span>
+        <span class="grow"></span>
+        <button id="orgRotate" class="ghost outline" disabled><svg class="ic"><use href="#i-rotate"/></svg>Rotate</button>
+        <button id="orgDup" class="ghost outline" disabled><svg class="ic"><use href="#i-copy"/></svg>Duplicate</button>
+        <button id="orgExtract" class="ghost outline" data-tip="Download the selected pages as a new PDF" disabled><svg class="ic"><use href="#i-download"/></svg>Extract</button>
+        <button id="orgSplit" class="ghost outline" data-tip="Download each selected page as its own PDF, in one zip file" disabled><svg class="ic"><use href="#i-scissors"/></svg>Split</button>
+        <button id="orgDelete" class="ghost danger" disabled><svg class="ic"><use href="#i-trash"/></svg>Delete</button>
+      </div>
+      <p class="hint orghint">Drag pages to change their order. Shift-click selects a range. Use + on a page to insert a blank page after it.</p>
+      <div id="orgGrid"></div>
+    </section>
+  </main>
+
+  <footer id="statusbar" hidden>
+    <span id="statusPage"></span>
+    <span class="dot" aria-hidden="true"></span>
+    <span id="statusSave"></span>
+    <span class="grow"></span>
+    <span id="statusHint"></span>
+  </footer>
+
+  <section id="home" class="view">
+    <div class="viewinner">
+      <div id="drop">
+        <div class="dropicon" aria-hidden="true"><svg class="ic"><use href="#i-upload"/></svg></div>
+        <h1>Edit any PDF</h1>
+        <p>Change the existing text, add new text and add photos.</p>
+        <button id="landingOpen" class="primary big">Choose PDFs</button>
+        <p class="small">or drop them here. Each one opens in its own tab. Locked PDFs work too.</p>
+      </div>
+      <ul class="features">
+        <li><svg class="ic"><use href="#i-pencil"/></svg><div><b>Edit real text</b><span>Keeps the original font and size</span></div></li>
+        <li><svg class="ic"><use href="#i-select"/></svg><div><b>Move or copy areas</b><span>On the same page or another one</span></div></li>
+        <li><svg class="ic"><use href="#i-scan"/></svg><div><b>Read scanned pages</b><span>Makes their words editable</span></div></li>
+        <li><svg class="ic"><use href="#i-unlock"/></svg><div><b>Unlock and edit</b><span>Enter the password once, then edit freely</span></div></li>
+        <li><svg class="ic"><use href="#i-lock"/></svg><div><b>Private by design</b><span>Your files stay on this computer</span></div></li>
+      </ul>
+      <div id="homeRecent" hidden>
+        <div class="sectionhead">
+          <h2>Continue editing</h2>
+          <button id="seeSaved" class="ghost">See Saved PDFs</button>
+        </div>
+        <div id="recentGrid" class="grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="saved" class="view" hidden>
+    <div class="viewinner">
+      <div class="sectionhead">
+        <h1>Saved PDFs</h1>
+        <div class="searchwrap"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input id="savedSearch" type="search" placeholder="Search by name" aria-label="Search saved PDFs"></div>
+      </div>
+      <div id="savedGrid" class="grid"></div>
+      <div id="savedEmpty" class="empty" hidden>
+        <div class="dropicon" aria-hidden="true"><svg class="ic"><use href="#i-bookmark"/></svg></div>
+        <h2>Nothing saved yet</h2>
+        <p>Open a PDF and click <b>Save</b>. It will appear here, ready to edit again whenever you like.</p>
+      </div>
+      <p id="savedNoMatch" class="muted" hidden>No saved PDFs match that name.</p>
+    </div>
+  </section>
+</div>
+
+<input id="filePdf" type="file" accept="application/pdf,.pdf" multiple hidden>
+<input id="fileImg" type="file" accept="image/*" hidden>
+<input id="fileMerge" type="file" accept="application/pdf,.pdf" hidden>
+<input id="fileSign" type="file" accept="image/*" hidden>
+<div id="busy" role="status" hidden><span class="spin"></span><span id="busyText">Working…</span></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="tip" role="tooltip" hidden></div>
+
+<dialog id="pwDialog">
+  <form method="dialog">
+    <div class="dropicon small" aria-hidden="true"><svg class="ic"><use href="#i-lock"/></svg></div>
+    <h2 id="pwTitle">This PDF is password protected</h2>
+    <p class="muted">Enter its password to unlock it. The editor then removes the password, so you can edit it and download a copy that opens without one.</p>
+    <p id="pwWrong" class="err" hidden>That password didn't work. Please try again.</p>
+    <input id="pwInput" type="password" placeholder="Password" aria-label="Password" autocomplete="off">
+    <div class="row">
+      <button value="ok" class="primary"><svg class="ic"><use href="#i-unlock"/></svg>Unlock and edit</button>
+      <button value="cancel" class="ghost outline" formnovalidate>Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="askDialog">
+  <form method="dialog">
+    <h2 id="askTitle"></h2>
+    <p id="askText" class="muted"></p>
+    <input id="askInput" type="text" aria-labelledby="askTitle" autocomplete="off">
+    <div class="row">
+      <button id="askOk" value="ok" class="primary"></button>
+      <button id="askCancel" value="cancel" class="ghost outline" formnovalidate>Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="signDialog" aria-labelledby="signTitle">
+  <h2 id="signTitle">Sign</h2>
+  <div class="stabs" role="tablist">
+    <button role="tab" data-stab="draw" aria-selected="true">Draw</button>
+    <button role="tab" data-stab="type" aria-selected="false">Type</button>
+    <button role="tab" data-stab="upload" aria-selected="false">Upload</button>
+    <button role="tab" data-stab="date" aria-selected="false"><svg class="ic"><use href="#i-calendar"/></svg>Date</button>
+  </div>
+  <div id="savedSigs" class="savedsigs" hidden><span class="muted">Saved:</span></div>
+  <div data-spane="draw">
+    <canvas id="sigCanvas" class="sigpad" width="1040" height="300" aria-label="Draw your signature here"></canvas>
+    <div class="sigopts">
+      <div class="segment" role="group" aria-label="Pen thickness">
+        <button class="seg" data-penw="2.5">Thin</button><button class="seg on" data-penw="4">Medium</button><button class="seg" data-penw="6">Thick</button>
+      </div>
+      <span class="grow"></span>
+      <button id="sigClear" class="ghost">Clear</button>
+    </div>
+  </div>
+  <div data-spane="type" hidden>
+    <input id="sigName" type="text" placeholder="Your name or initials" aria-label="Your name or initials" autocomplete="off">
+    <div id="sigFonts" class="sigchoices" role="radiogroup" aria-label="Handwriting style"></div>
+  </div>
+  <div data-spane="upload" hidden>
+    <div class="sigupload">
+      <canvas id="sigUpload" class="sigpad" width="1040" height="300" aria-label="Uploaded signature preview"></canvas>
+      <button id="sigPick" class="ghost outline"><svg class="ic"><use href="#i-upload"/></svg>Choose an image</button>
+    </div>
+    <label class="check"><input id="sigClean" type="checkbox" checked> Remove the white background</label>
+  </div>
+  <div data-spane="date" hidden>
+    <div id="dateFormats" class="sigchoices" role="radiogroup" aria-label="Date style"></div>
+  </div>
+  <div class="sigcolour" id="sigColourRow">
+    <span class="muted">Colour</span>
+    <button class="pen on" data-pen="#111827" aria-label="Black" style="--pen:#111827"></button>
+    <button class="pen" data-pen="#1d4ed8" aria-label="Blue" style="--pen:#1d4ed8"></button>
+    <span class="grow"></span>
+    <label class="check" id="sigRememberRow"><input id="sigRemember" type="checkbox" checked> Remember on this computer</label>
+  </div>
+  <div class="row">
+    <button id="sigPlace" class="primary">Place on page</button>
+    <button id="sigCancel" class="ghost outline">Cancel</button>
+  </div>
+</dialog>
+
+<dialog id="exportDialog" aria-labelledby="exportTitle">
+  <form method="dialog">
+    <h2 id="exportTitle">Download a copy</h2>
+    <label class="choice"><input type="radio" name="exp" value="standard" checked><span><b>Standard</b><small>Best if you'll edit it again later. Larger file.</small></span></label>
+    <label class="choice"><input type="radio" name="exp" value="compressed"><span><b>Compressed</b><small>Smallest file, good for email. Photos are slightly reduced.</small></span></label>
+    <div class="row">
+      <button value="ok" class="primary"><svg class="ic"><use href="#i-download"/></svg>Download</button>
+      <button value="cancel" class="ghost outline" formnovalidate>Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="palette" aria-label="Find any action">
+  <div class="palhead"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg><input id="palInput" type="text" placeholder="Find any action" aria-label="Find any action" autocomplete="off"></div>
+  <ul id="palList" role="listbox" aria-label="Actions"></ul>
+</dialog>
+<script src="/static/app.js"></script>
+</body>
+</html>
